@@ -60,6 +60,7 @@ length = 0x10
 # Hash to solve for
 crc_to_crack = 0xb5b69a26
 
+
 # Beginning of string must match
 prefix = "ex_bad_"
 
@@ -68,6 +69,16 @@ suffix = ""
 
 # Substring must be present at least once
 substring = ""
+
+
+# Include a-z in mystery character set
+alphabetic = True
+
+# Include 0-9 in mystery character set
+numeric = True
+
+# Include _ in mystery character set
+underscore = True
 
 # =======================================
 
@@ -100,9 +111,12 @@ solver.add(crc32_smt(input_str) == crc_to_crack)
 for i in range(len(input_str) - 1):
     solver.add(Not(And(input_str[i] == ord('_'), input_str[i + 1] == ord('_'))))
 
-# All characters are a-z, 0-9, or _
+# Mystery character set
 for char in input_str[len(prefix):]:
-    solver.add(Or(And(char >= ord('0'), char <= ord('9')), And(char >= ord('a'), char <= ord('z')), char == ord('_')))
+    alphabeticTest = And(alphabetic, char >= ord('a'), char <= ord('z'))
+    numericTest = And(numeric, char >= ord('0'), char <= ord('9'))
+    underscoreTest = And(underscore, char == ord('_'))
+    solver.add(Or(alphabeticTest, numericTest, underscoreTest))
 
 # Prefix must match
 for i, char in enumerate(prefix):
